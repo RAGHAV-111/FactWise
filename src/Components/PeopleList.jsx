@@ -7,7 +7,9 @@ function PeopleList() {
     const [open, setOpen] = useState(false);
     const [people, setPeople] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [editingPerson, setEditingPerson] = useState(null); // State to keep track of the person being edited
+    const [editingPerson, setEditingPerson] = useState(null);
+    const [deleteConfirmation, setDeleteConfirmation] = useState(false);
+    // State to keep track of the person being edited
 
     useEffect(() => {
         // Define a function to fetch data
@@ -32,8 +34,8 @@ function PeopleList() {
     };
 
     const handleDelete = (id) => {
-        // Handle delete functionality
-        console.log('Delete clicked for person with ID:', id);
+        const updatedPeople = people.filter(person => person.id !== id);
+        setPeople(updatedPeople);
     };
 
     const handleChange = (e) => {
@@ -61,19 +63,13 @@ function PeopleList() {
         setPeople(updatedPeople);
         closeModal(); // Close the modal after saving changes
 
-        // Convert the updated data to JSON format
-        const updatedDataJson = JSON.stringify(updatedPeople);
+    };
 
-        // Use browser APIs to save the updated JSON to a file (This is not supported in all browsers and not recommended for production)
-        const blob = new Blob([updatedDataJson], { type: 'application/json' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'celebrities.json';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+    const confirmDelete = () => {
+        const updatedPeople = people.filter(person => person.id !== editingPerson.id);
+        setPeople(updatedPeople);
+        setDeleteConfirmation(false);
+        setEditingPerson(null);
     };
 
     const filteredPeople = people.filter(person => {
@@ -83,47 +79,148 @@ function PeopleList() {
     });
 
     return (
-        <div className="people-list">
-            <Modal open={open} onClose={closeModal} center>
-                <h2>Edit Person</h2>
-                <form>
-                    <label htmlFor="first">First Name:</label>
-                    <input type="text" id="first" name="first" value={editingPerson?.first} onChange={handleChange} />
-                    <label htmlFor="last">Last Name:</label>
-                    <input type="text" id="last" name="last" value={editingPerson?.last} onChange={handleChange} />
-                    {/* Add input fields for other properties */}
-                    <button type="button" onClick={saveChanges}>Save</button>
-                </form>
-            </Modal>
-            <div className="search-bar">
-                <input
-                    type="text"
-                    placeholder="Search by name..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <button>Search</button>
+        <div className="people-list relative  ">
+
+
+            <div className=' flex  p-10 justify-center text-center w-full  ' >
+                <div className=' w-96'>
+
+                    <p className=" p-10 text-3xl font-bold tracking-tight text-[#000000] sm:text-4xl">View List</p>
+                    <input
+                        className='border p-4 w-60'
+                        type="text"
+                        placeholder="Search the name of the user"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <button className=' mx-20 flex justify-center text-center w-60 bg-green-500 px-4 py-2 m-4 rounded-lg'>Search</button>
+                </div>
             </div>
             <div id='specification' className="overflow-hidden py-8 sm:py-16">
                 <div className="mx-auto max-w-7xl px-6 lg:px-8">
                     <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2">
                         <div className="">
                             <div className="">
-                                <p className="pt-10 px-10 text-3xl font-bold tracking-tight text-[#14274a] sm:text-4xl">Ekana Ontario Specifications</p>
-                                <dl className="mt-2 max-w-xl space-y-8 text-base leading-7 text-[#e0b973] lg:max-w-none py-4">
+                                <p className="pt-10 px-10 text-3xl font-bold tracking-tight text-[#000000] sm:text-4xl">List of Users</p>
+                                <dl className="mt-2 max-w-xl space-y-8 text-base leading-7 text-[#000000] lg:max-w-none py-4">
+
+                                    <div className="absolute top-96 right-20 p-6   justify-center text-center " >
+                                        <p className=" p-10 text-3xl font-bold tracking-tight text-[#000000] sm:text-4xl">Edit User</p>
+                                        <form className=' border flex px-20 flex-col justify-center text-center'>
+
+                                            <div className='p-4'>
+
+                                                <label className=' m-2 p-2 ' htmlFor="first">First Name:</label>
+                                                <input className='border m-2 p-2 rounded-lg' type="text" id="first" name="first" value={editingPerson?.first} onChange={handleChange} />
+                                            </div>
+
+
+                                            <div className='p-4'>
+                                                <label className=' m-2 p-2 ' htmlFor="last">Last Name:</label>
+                                                <input className='border m-2 p-2 rounded-lg' type="text" id="last" name="last" value={editingPerson?.last} onChange={handleChange} />
+                                            </div>
+
+
+                                            <div className='p-4'>
+                                                <label className=' m-2 p-2 ' htmlFor="last">Gender:</label>
+                                                <select
+                                                    className='border m-2 p-2 rounded-lg'
+                                                    id="gender"
+                                                    name="gender"
+                                                    value={editingPerson?.gender}
+                                                    onChange={handleChange}
+                                                >
+                                                    <option value="male">Male</option>
+                                                    <option value="female">Female</option>
+                                                    <option value="Transgender">Transgender</option>
+                                                    <option value="Rather not say">Rather not say</option>
+                                                    <option value="other">Other</option>
+                                                </select>
+                                            </div>
+
+                                            <div className='p-4'>
+                                                <label className=' m-2 p-2 ' htmlFor="last">Description:</label>
+                                                <textarea className='border w-full h-72 m-2 p-2 rounded-lg  text-justify ' type="text" id="last" name="last" value={editingPerson?.description} onChange={handleChange} />
+                                            </div>
+
+
+
+                                            <button className='flex justify-center text-center w-full  bg-green-500 px-4 py-2 m-4 rounded-lg' type="button" onClick={saveChanges}>Save</button>
+                                        </form>
+                                    </div>
                                     {filteredPeople.map(person => (
-                                        <div key={person.id} className="card">
-                                            <details className="accordion">
-                                                <summary className="cursor-pointer font-semibold text-[#14274a]">
-                                                    {person.first} {person.last}
+                                        <div key={person.id} className="card w-full">
+                                            <details className="accordion border p-4  w-full ">
+                                                <summary className=" cursor-pointer font-semibold text-[#14274a]">
+
+                                                    <div className='flex '>
+
+                                                        <div className='rounded-full p-4'>
+
+                                                            {<img src={person.picture} className='rounded-full' alt={person.first} />}
+                                                        </div>
+                                                        <p className='p-4 flex justify-center text-center mt-4'>
+
+                                                            {person.first} {person.last}
+                                                        </p>
+                                                    </div>
                                                 </summary>
-                                                <div>
-                                                    <img src={person.picture} alt={person.first} />
-                                                    <p>Email: {person.email}</p>
-                                                    <p>Country: {person.country}</p>
-                                                    <p>Description: {person.description}</p>
-                                                    <button className='bg-green-500' onClick={() => handleEdit(person.id)}>Edit</button>
-                                                    <button className='bg-red-500' onClick={() => handleDelete(person.id)}>Delete</button>
+                                                <div className='text-black'>
+                                                    <div className='flex'>
+                                                        <div className='p-4'>
+                                                            <p className='py-2'>Age</p>
+                                                            {/* Age calculation */}
+                                                            <p className=''>
+                                                                {(() => {
+                                                                    const dob = new Date(person.dob);
+                                                                    const currentDate = new Date();
+                                                                    let age = currentDate.getFullYear() - dob.getFullYear();
+                                                                    if (
+                                                                        currentDate.getMonth() < dob.getMonth() ||
+                                                                        (currentDate.getMonth() === dob.getMonth() &&
+                                                                            currentDate.getDate() < dob.getDate())
+                                                                    ) {
+                                                                        age--;
+                                                                    }
+                                                                    return age;
+                                                                })()}
+                                                            </p>
+                                                        </div>
+
+                                                        <div className='p-4'>
+
+
+                                                            <p className='py-2'>Gender</p>
+                                                            <p className='capitalize'>{person.gender}</p>
+
+                                                        </div>
+
+
+                                                        <div className='p-4'>
+
+
+                                                            <p className='py-2'>Country</p>
+                                                            <textfield className=''>{person.country}</textfield>
+
+                                                        </div>
+
+
+                                                    </div>
+
+                                                    <div className='p-4'>
+
+
+                                                        <p className='py-2'>Description:</p>
+                                                        <textarea className='w-96 h-60'>{person.description}</textarea>
+
+                                                    </div>
+
+
+                                                    <div className='flex p-4'>
+
+                                                        <button className='bg-green-500 px-4 py-2 m-4 rounded-lg' onClick={() => handleEdit(person.id)}>Edit</button>
+                                                        <button className='bg-red-500 px-4 py-2 m-4 rounded-lg' onClick={() => handleDelete(person.id)}>Delete</button>
+                                                    </div>
                                                 </div>
                                             </details>
                                         </div>
