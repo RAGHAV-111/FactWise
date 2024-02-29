@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios'; // Import axios for making HTTP requests
-import './PeopleList.css'; // Import the CSS file for your component
+
 import { Modal } from 'react-responsive-modal';
 import { isEqual } from 'lodash';
 import { useCallback } from 'react'
